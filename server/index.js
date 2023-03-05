@@ -3,14 +3,21 @@ const app = express();
 const cors = require("cors");
 const port = 3042;
 
+const { generateKeyPairs } = require('./scripts/generate');
+
 app.use(cors());
 app.use(express.json());
 
-const balances = {
-  "0x1": 100,
-  "0x2": 50,
-  "0x3": 75,
-};
+const keyPairs = generateKeyPairs(3);
+
+const balances = keyPairs.reduce((acc, curr, idx) => {
+  acc[curr[0]] = (idx + 1) * 25
+  return acc;
+}, {});
+
+app.get("/wallets", (req, res) => {
+  res.send({ wallets: Object.keys(balances) });
+});
 
 app.get("/balance/:address", (req, res) => {
   const { address } = req.params;
